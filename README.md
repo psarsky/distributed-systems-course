@@ -1,2 +1,1 @@
-# distributed-systems-course
-Lab code from the Distributed Systems Course at AGH UST.
+# Distributed Systems Course at AGH UST - 2025/2026.
