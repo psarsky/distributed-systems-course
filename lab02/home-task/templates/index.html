@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Grand Prix Trip Planner</title>
+</head>
+<body>
+    <h1>Grand Prix Trip Planner</h1>
+
+    <form method="post" action="/plan">
+        <label>Date from:
+            <input type="date" name="from_date" value="{{ today }}" required>
+        </label>
+        <br><br>
+
+        <label>Date to:
+            <input type="date" name="to_date" value="{{ default_to }}" required>
+        </label>
+        <br><br>
+
+        <label>Departure airport (IATA):
+            <input type="text" name="departure_iata" value="WAW" minlength="3" maxlength="3" required>
+        </label>
+        <br><br>
+
+        <label>Number of adults:
+            <input type="number" name="adults" value="1" min="1" max="6" required>
+        </label>
+        <br><br>
+
+        <label>Number of nights:
+            <input type="number" name="stay_nights" value="4" min="1" max="14" required>
+        </label>
+        <br><br>
+
+        <label>Currency:
+            <input type="text" name="currency" value="USD" minlength="3" maxlength="3" required>
+        </label>
+        <br><br>
+
+        <button type="submit">Search</button>
+    </form>
+
+    {% if error %}
+        <hr>
+        <h2>Error</h2>
+        <p>{{ error }}</p>
+    {% endif %}
+
+    {% if results %}
+        <hr>
+        <h2>Results ({{ results.count }})</h2>
+
+        {% if results.message %}
+            <p>{{ results.message }}</p>
+        {% endif %}
+
+        {% for item in results["items"] %}
+            <article>
+                <h3>{{ item.race.raceName }}</h3>
+                <p>
+                    Race date: {{ item.race.schedule.race.date }}<br>
+                    Circuit: {{ item.race.circuit.circuitName }} ({{ item.race.circuit.city }}, {{ item.race.circuit.country }})<br>
+                    Destination airport: {{ item.destination_iata }}<br>
+                    Accommodation: {{ item.travel_dates.check_in }} → {{ item.travel_dates.check_out }}
+                </p>
+
+                {% if item.error %}
+                    <p>{{ item.error }}</p>
+                {% else %}
+                    <table border="1" cellpadding="6" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Option</th>
+                                <th>Flight</th>
+                                <th>Hotel</th>
+                                <th>GP Ticket</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for opt in item.price_options %}
+                                <tr>
+                                    <td>{{ opt.label }}</td>
+                                    <td>{{ opt.flight }} {{ results.query.currency }}</td>
+                                    <td>{{ opt.hotel }} {{ results.query.currency }}</td>
+                                    <td>{{ opt.ticket }} {{ results.query.currency }}</td>
+                                    <td><strong>{{ opt.total }} {{ results.query.currency }}</strong></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </article>
+            <hr>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>

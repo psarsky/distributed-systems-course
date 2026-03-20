@@ -1,0 +1,78 @@
+OPENF1_BASE = "https://f1api.dev/api"
+SERPAPI_BASE = "https://serpapi.com/search.json"
+DEFAULT_TIMEOUT = 25.0
+MAX_RACES_PER_REQUEST = 8
+
+IATA_BY_CIRCUIT_ID: dict[str, str] = {
+    "albert_park": "MEL",
+    "shanghai": "PVG",
+    "suzuka": "NGO",
+    "bahrain": "BAH",
+    "jeddah": "JED",
+    "miami": "MIA",
+    "imola": "BLQ",
+    "monaco": "NCE",
+    "barcelona": "BCN",
+    "villeneuve": "YUL",
+    "red_bull_ring": "GRZ",
+    "silverstone": "LHR",
+    "hungaroring": "BUD",
+    "spa": "BRU",
+    "zandvoort": "AMS",
+    "monza": "MXP",
+    "baku": "GYD",
+    "marina_bay": "SIN",
+    "americas": "AUS",
+    "rodriguez": "MEX",
+    "interlagos": "GRU",
+    "las_vegas": "LAS",
+    "losail": "DOH",
+    "yas_marina": "AUH",
+}
+
+IATA_BY_COUNTRY: dict[str, str] = {
+    "australia": "MEL",
+    "china": "SHA",
+    "japan": "NRT",
+    "bahrain": "BAH",
+    "saudi arabia": "JED",
+    "usa": "JFK",
+    "united states": "JFK",
+    "italy": "MXP",
+    "monaco": "NCE",
+    "spain": "BCN",
+    "canada": "YUL",
+    "austria": "VIE",
+    "united kingdom": "LHR",
+    "hungary": "BUD",
+    "belgium": "BRU",
+    "netherlands": "AMS",
+    "azerbaijan": "GYD",
+    "singapore": "SIN",
+    "mexico": "MEX",
+    "brazil": "GRU",
+    "qatar": "DOH",
+    "united arab emirates": "AUH",
+}
+
+TICKET_ESTIMATE_USD: dict[str, tuple[int, int, int]] = {
+    "monaco": (1400, 3200, 7500),
+    "silverstone": (660, 900, 1200),
+    "spa": (320, 1400, 6400),
+    "monza": (870, 1200, 7700),
+    "yas_marina": (885, 1400, 2400),
+    "miami": (900, 1300, 2000),
+    "marina_bay": (1600, 5000, 11000),
+    "suzuka": (6300, 6300, 6300),
+    "barcelona": (350 , 1400, 7400),
+    "villeneuve": (530, 1700, 5300),
+    "red_bull_ring": (720, 720, 720),
+    "hungaroring": (230, 1000, 2800),
+    "zandvoort": (720, 1100, 4600),
+    "baku": (580, 1000, 1600),
+    "americas": (520, 1000, 1600),
+    "rodriguez": (660, 1500, 3700),
+    "interlagos": (930, 2700, 3700),
+    "losail": (345, 500, 700),
+}
+DEFAULT_TICKET_ESTIMATE_USD = (400, 1200, 2000)
