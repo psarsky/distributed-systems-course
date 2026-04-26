@@ -1,0 +1,22 @@
+FROM eclipse-temurin:25-jdk
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates libzeroc-ice3.7-java zeroc-ice-compilers \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY slice ./slice
+COPY server ./server
+COPY server.config ./server.config
+
+RUN set -eux; \
+    ICE_JAR="$(find /usr/share/java -name 'ice-*.jar' | grep -v compat | sort | tail -n 1)"; \
+    test -n "$ICE_JAR"; \
+    mkdir -p generated/java out/server-classes; \
+    slice2java --output-dir generated/java slice/servant_mgmt.ice; \
+    javac -cp "$ICE_JAR" -d out/server-classes $(find generated/java server/java -name '*.java' | sort)
+
+CMD ["/bin/sh", "-lc", "ICE_JAR=\"$(find /usr/share/java -name 'ice-*.jar' | grep -v compat | sort | tail -n 1)\"; exec java -cp \"$ICE_JAR:/app/out/server-classes\" servantmgmt.server.Server"]

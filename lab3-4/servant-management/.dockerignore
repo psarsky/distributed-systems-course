@@ -1,0 +1,11 @@
+.git
+.gitignore
+README.md
+scripts/
+server_old/
+out/
+generated/
+__pycache__/
+*.pyc
+*.class
+*.log

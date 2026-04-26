@@ -1,0 +1,30 @@
+FROM python:3.14-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libssl-dev \
+    libbz2-dev \
+    libffi-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip \
+    && pip install zeroc-ice
+
+COPY slice ./slice
+
+RUN slice2py slice/servant_mgmt.ice
+
+COPY client ./client
+COPY client.config ./client.config
+
+ENV PYTHONPATH=/app
+
+WORKDIR /app/client
+
+CMD ["python", "client.py"]
