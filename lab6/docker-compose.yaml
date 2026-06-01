@@ -1,0 +1,40 @@
+services:
+  jupyter:
+    image: rayproject/ray:2.55.1-py310
+    container_name: ray-jupyter-lab-container
+
+    shm_size: "5.06gb"
+
+    ports:
+      - "8888:8888"
+      - "8265:8265"
+
+    volumes:
+      - ./notebook:/home/ray/work
+
+    working_dir: /home/ray/work
+
+    command: >
+      bash -lc "
+      pip install --no-cache-dir
+      jupyterlab
+      notebook
+      ipykernel
+      ipywidgets
+      pandas
+      numpy
+      scipy
+      matplotlib
+      scikit-learn
+      requests
+      &&
+      jupyter lab
+      --ip=0.0.0.0
+      --port=8888
+      --no-browser
+      --ServerApp.token=raylab
+      --ServerApp.allow_origin='*'
+      --ServerApp.notebook_dir=/home/ray/work
+      "
+
+    restart: unless-stopped
