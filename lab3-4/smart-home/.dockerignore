@@ -1,0 +1,12 @@
+.git
+.gitignore
+README.md
+out/
+generated/
+libs/
+.gradle/
+build/
+__pycache__/
+*.pyc
+*.class
+*.log

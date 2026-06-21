@@ -1,0 +1,53 @@
+plugins {
+    id 'application'
+    id 'com.google.protobuf' version '0.9.4'
+}
+
+repositories {
+    mavenCentral()
+}
+
+def grpcVersion = '1.62.2'
+def protobufVersion = '3.25.3'
+
+dependencies {
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    compileOnly "org.apache.tomcat:annotations-api:6.0.53"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'java'
+        }
+        proto {
+            srcDir '../proto'
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                grpc {}
+            }
+        }
+    }
+}
+
+application {
+    mainClass = 'smarthome.server.SmartHomeServer'
+    applicationDefaultJvmArgs = ['--enable-native-access=ALL-UNNAMED']
+}

@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "smarthome.grpc";
+
+package smarthome;
+
+
+// common types
+
+enum DeviceType {
+  DEVICE_TYPE_UNSPECIFIED = 0; // also used as "no filter" option in ListDevices
+  FRIDGE = 1;
+  CAMERA = 2;
+}
+
+enum PowerState {
+  POWER_STATE_UNSPECIFIED = 0;
+  POWER_OFF = 1;
+  POWER_ON = 2;
+}
+
+// general, universal device data structure, used by all devices list
+message DeviceInfo {
+  string id = 1;
+  DeviceType type = 2;
+  string subtype = 3;
+  string location = 4;
+  string description = 5;
+}
+
+message DeviceList {
+  string server_name = 1;
+  repeated DeviceInfo devices = 2;
+}
+
+
+// device directory (all devices)
+
+message ListDevicesRequest {
+  DeviceType type_filter = 1;
+}
+
+service Directory {
+  rpc ListDevices(ListDevicesRequest) returns (DeviceList);
+}
+
+
+// FRIDGE - subtypes: BASIC / FREEZER / SMART
+
+enum FridgeSubtype {
+  FRIDGE_SUBTYPE_UNSPECIFIED = 0;
+  BASIC = 1;   // fridge only
+  FREEZER = 2; // fridge + freezer
+  SMART = 3;   // fridge + freezer + inventory
+}
+
+// FREEZER subtype extras
+message FreezerExtras {
+  double freezer_temp_c = 1;
+  double freezer_target_c = 2;
+}
+
+// SMART subtype extras (freezer fields + inventory)
+message SmartExtras {
+  double freezer_temp_c = 1;
+  double freezer_target_c = 2;
+  repeated string contents = 3;
+}
+
+
+// full fridge state including subtype-specific data
+message FridgeState {
+  string id = 1;
+  FridgeSubtype subtype = 2;
+  PowerState power = 3;
+  double fridge_temp_c = 4;
+  double fridge_target_c = 5;
+  bool door_open = 6;
+  oneof extras {
+    FreezerExtras freezer = 7;
+    SmartExtras smart = 8;
+  }
+}
+
+message FridgeId { string id = 1; }
+
+message SetFridgePowerRequest {
+  string id = 1;
+  PowerState power = 2;
+}
+
+message SetFridgeTempRequest {
+  string id = 1;
+  double target_c = 2;
+}
+
+message ItemRequest {
+  string id = 1;
+  string item = 2;
+}
+
+// one service handles all fridge instances
+// subtype-specific operations throw errors if the instance does not support them
+service FridgeControl {
+  rpc Get(FridgeId) returns (FridgeState);
+  rpc SetPower(SetFridgePowerRequest) returns (FridgeState);
+  rpc SetFridgeTarget(SetFridgeTempRequest) returns (FridgeState);
+  rpc SetFreezerTarget(SetFridgeTempRequest) returns (FridgeState); // FREEZER/SMART
+  rpc AddItem(ItemRequest) returns (FridgeState);                   // only SMART
+  rpc RemoveItem(ItemRequest) returns (FridgeState);                // only SMART
+}
+
+
+// CAMERA - subtypes: FIXED / PTZ
+
+enum CameraSubtype {
+  CAMERA_SUBTYPE_UNSPECIFIED = 0;
+  FIXED = 1;
+  PTZ = 2;
+}
+
+message PtzPosition {
+  double pan = 1;  // degrees, -180..180
+  double tilt = 2; // degrees, -90..90
+  double zoom = 3; // magnitude, 1.0..10.0
+}
+
+// stored PTZ position preset
+message Preset {
+  string name = 1;
+  PtzPosition position = 2;
+}
+
+// PTZ subtype extras
+message PtzExtras {
+  PtzPosition position = 1;
+  repeated Preset presets = 2;
+}
+
+// full camera state including optional PTZ-specific data
+message CameraState {
+  string id = 1;
+  CameraSubtype subtype = 2;
+  PowerState power = 3;
+  bool recording = 4;
+  oneof extras {
+    PtzExtras ptz = 5;
+  }
+}
+
+message CameraId { string id = 1; }
+
+message SetCameraPowerRequest {
+  string id = 1;
+  PowerState power = 2;
+}
+
+message SetRecordingRequest {
+  string id = 1;
+  bool recording = 2;
+}
+
+message MoveRequest {
+  string id = 1;
+  double pan_delta = 2;
+  double tilt_delta = 3;
+  double zoom_delta = 4;
+}
+
+message PresetRequest {
+  string id = 1;
+  string name = 2;
+}
+
+// one service handles all fridge instances
+// PTZ-specific operations throw errors if the instance does not support them
+service CameraControl {
+  rpc Get(CameraId) returns (CameraState);
+  rpc SetPower(SetCameraPowerRequest) returns (CameraState);
+  rpc SetRecording(SetRecordingRequest) returns (CameraState);
+  rpc Move(MoveRequest) returns (CameraState);          // PTZ only
+  rpc SavePreset(PresetRequest) returns (CameraState);   // PTZ only
+  rpc GoToPreset(PresetRequest) returns (CameraState);   // PTZ only
+  rpc RemovePreset(PresetRequest) returns (CameraState); // PTZ only
+}

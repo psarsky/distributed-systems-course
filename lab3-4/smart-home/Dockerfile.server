@@ -1,0 +1,14 @@
+FROM gradle:8.14-jdk24
+
+WORKDIR /app
+
+COPY proto ./proto
+COPY server ./server
+COPY server1.config server2.config ./
+
+RUN gradle -p server installDist --no-daemon
+
+# SERVER_CONFIG wybiera plik konfiguracyjny (server1.config / server2.config).
+ENV SERVER_CONFIG=server1.config
+
+CMD ["/bin/sh", "-lc", "exec server/build/install/smart-home-server/bin/smart-home-server \"$SERVER_CONFIG\""]

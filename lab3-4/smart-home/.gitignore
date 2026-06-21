@@ -1,0 +1,8 @@
+generated/
+out/
+libs/
+.gradle/
+build/
+__pycache__/
+*.pyc
+*.class

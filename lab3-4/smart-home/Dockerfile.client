@@ -1,0 +1,26 @@
+FROM python:3.14-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN pip install --upgrade pip \
+    && pip install grpcio grpcio-tools
+
+COPY proto ./proto
+
+RUN mkdir -p generated/python \
+    && python -m grpc_tools.protoc -I proto \
+        --python_out=generated/python \
+        --grpc_python_out=generated/python \
+        proto/smarthome.proto
+
+COPY client ./client
+COPY client.config ./client.config
+
+ENV PYTHONPATH=/app/generated/python
+
+WORKDIR /app/client
+
+CMD ["python", "client.py"]

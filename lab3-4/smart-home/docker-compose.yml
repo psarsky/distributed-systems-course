@@ -1,0 +1,30 @@
+services:
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    image: smart-home-server:java25
+    environment:
+      SERVER_CONFIG: server1.config
+    ports:
+      - "50051:50051"
+
+  server2:
+    image: smart-home-server:java25
+    depends_on:
+      - server1
+    environment:
+      SERVER_CONFIG: server2.config
+    ports:
+      - "50052:50052"
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    image: smart-home-client:python-latest
+    depends_on:
+      - server1
+      - server2
+    stdin_open: true
+    tty: true
